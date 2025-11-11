@@ -1,0 +1,40 @@
+version: "0.1.18"
+search:
+  max_results_text: 20
+  timelimit: "m"  # 近30天优先
+  chinese_only: true
+  whitelist_domains: []
+  blacklist_domains: []
+  enable_news: true
+  news_feeds:
+    - https://rsshub.app/thepaper/featured
+    - https://rsshub.app/36kr/newsflashes
+    - https://rsshub.app/ithome/news
+  # 简易平台权重表：提升主流中文来源权重
+  domain_weights:
+    thepaper.cn: 0.5
+    36kr.com: 0.4
+    ithome.com: 0.3
+  duckduckgo_enabled: false
+  domestic_only: true
+report:
+  title: "舆情报告（MVP-文本版）"
+  output_dir: "舆情分析/output"
+web:
+  host: "127.0.0.1"
+  port: 5000
+  debug: true
+fetcher:
+  enabled: true
+  top_k: 3
+  timeout: 10.0
+llm:
+  provider: volc
+  api_base: "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
+  model_id: "ep-20241217194410-r674k"
+  # 优先读取环境变量 ARK_API_KEY 或 LLM_API_KEY；如未提供，则使用此配置值
+  api_key: "e05e4315-a4ea-4d3f-ae8b-02719a471055"
+
+loop:
+  iter_size: 5
+  max_iterations: 4

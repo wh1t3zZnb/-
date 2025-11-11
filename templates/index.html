@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>舆情分析 MVP v{{ version }}</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 2rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .title { font-size: 1.4rem; margin-bottom: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    input[type=text], input[type=number] { width: 100%; padding: 0.6rem; }
+    button { padding: 0.6rem 1rem; }
+    .error { color: #c00; margin-bottom: 1rem; }
+  </style>
+  </head>
+<body>
+  <div class="container">
+    <div class="title">舆情分析 MVP（LLM策略/国内优先） v{{ version }}</div>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="post" action="/report">
+      <div class="form-group">
+        <label>请输入你的问题（示例：王家卫最近风评如何？）</label>
+        <input type="text" name="query" placeholder="例如：某事件的舆情怎么看？" />
+      </div>
+      <button type="submit">生成报告</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} v{{ version }}</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 2rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.6rem; }
+    .section { margin-top: 1.2rem; }
+    .item { margin-bottom: 0.6rem; }
+    .meta { color: #555; font-size: 0.9rem; }
+    a { text-decoration: none; color: #06c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{ title }} v{{ version }}</h1>
+    <div class="section">
+      <strong>主题：</strong>{{ query }}
+    </div>
+    <div class="section">
+      <strong>总览结论（草案）：</strong>
+      <p>{{ summary }}</p>
+    </div>
+    <div class="section">
+      <form method="post" action="/export">
+        <input type="hidden" name="query" value="{{ query }}" />
+        <input type="hidden" name="max_results" value="{{ config_summary.max_results }}" />
+        <input type="hidden" name="timelimit" value="{{ timelimit_ui }}" />
+        <button type="submit">导出为 Markdown 文件</button>
+        {% if export_path %}
+          <div class="meta">已保存：{{ export_path }}</div>
+        {% endif %}
+      </form>
+    </div>
+    <div class="section">
+      <strong>代表性文本结果（共 {{ total }} 条）</strong>
+      {% if total == 0 %}
+      <p class="meta">未检索到有效中文结果或结果被过滤。请尝试调整关键词、时间窗或白/黑名单设置，并检查网络与依赖（duckduckgo-search、feedparser）。</p>
+      {% endif %}
+      <ol>
+        {% for it in items %}
+        <li class="item">
+          <a href="{{ it.href }}" target="_blank">{{ it.title }}</a>
+          <div class="meta">来源：{{ it.source }}</div>
+          {% if it.body %}<div class="meta">摘要：{{ it.body }}</div>{% endif %}
+          {% if it.content %}
+          <details>
+            <summary>展开/收起全文</summary>
+            <div style="white-space: pre-wrap; line-height: 1.5; margin-top: 0.4rem;">{{ it.content }}</div>
+          </details>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+    {% if debug and debug_counts %}
+    <div class="section">
+      <strong>开发者调试（仅开发模式）</strong>
+      <ul class="meta">
+        <li>原始DuckDuckGo：{{ debug_counts.raw_web }} 条</li>
+        <li>RSS新闻源：{{ debug_counts.raw_news }} 条</li>
+        <li>合计原始：{{ debug_counts.raw_total }} 条</li>
+        <li>中文过滤后：{{ debug_counts.filtered }} 条{% if debug_counts.fallback_used %}（已触发兜底：使用未过滤原始结果）{% endif %}</li>
+        <li>去重后：{{ debug_counts.dedup }} 条</li>
+        <li>域名过滤后：{{ debug_counts.domain }} 条</li>
+        <li>最终展示：{{ debug_counts.final }} 条</li>
+        {% if debug_counts.relax_used %}
+        <li>自动增广：已触发（扩大时间窗、关闭中文/域名过滤），增广后结果：{{ debug_counts.relax_final }} 条</li>
+        {% else %}
+        <li>自动增广：未触发</li>
+        {% endif %}
+        {% if debug_counts.curated_used %}
+        <li>保底来源：已注入（维基百科/百度百科）</li>
+        {% endif %}
+        {% if debug_counts.fetch_success or debug_counts.fetch_fail %}
+        <li>正文抓取：成功 {{ debug_counts.fetch_success or 0 }} 条，失败 {{ debug_counts.fetch_fail or 0 }} 条</li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+    <div class="section">
+      <strong>数据说明与配置摘要：</strong>
+      <ul>
+        <li>生成时间：{{ config_summary.generated_at }}</li>
+        <li>时间窗：{{ config_summary.timelimit_display }}{% if config_summary.timelimit_note %}（{{ config_summary.timelimit_note }}）{% endif %}</li>
+        <li>结果配额：{{ config_summary.max_results }}</li>
+        <li>语言过滤：仅中文（{{ '是' if config_summary.chinese_only else '否' }}）</li>
+        <li>来源类型：{{ config_summary.source }}</li>
+        <li>免责声明：本报告仅供参考，数据来源为公开网页文本，可能存在采样偏差与时效性限制。</li>
+      </ul>
+    </div>
+    <div class="section">
+      <strong>风险与建议（草案）：</strong>
+      <ul>
+        <li>当前为文本MVP，建议后续补充平台覆盖与评论层抓取。</li>
+        <li>建议逐步接入多模态与内部库，以提高结论稳健性与说服力。</li>
+      </ul>
+    </div>
+    <div class="section">
+      <a href="/">返回首页</a>
+    </div>
+  </div>
+</body>
+</html>
