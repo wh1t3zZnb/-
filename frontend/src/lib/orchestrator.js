@@ -18,6 +18,7 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
     yield { type: 'baidu_search_failed', message: e.message || 'Baidu AI 搜索失败' };
   }
 
+  yield { type: 'phase_change', to: 'filter' };
   const kw = String(query || '').toLowerCase().split(/\s+/).filter(Boolean);
   const accepted = [];
   const rejected = [];
@@ -30,6 +31,7 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
   }
   yield { type: 'filter', accepted_this_round: accepted.length };
   if (rejected.length) yield { type: 'filter_rejects', count: rejected.length };
+  yield { type: 'filter_detail', accepted: accepted.length, rejected: rejected.length };
 
   const fetchUrl = (() => {
     try { return apiUrl.replace('/api/chat', '/api/fetch'); } catch { return apiUrl; }
@@ -37,7 +39,8 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
   let success = 0, fail = 0;
   const cleaned = [];
   const strip = (html) => String(html || '').replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
-  const tasks = accepted.map(async (it) => {
+  yield { type: 'phase_change', to: 'fetch' };
+  for (const it of accepted) {
     try {
       const res = await fetch(fetchUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/plain' }, body: JSON.stringify({ url: it.href || it.url }) });
       if (!res.ok) throw new Error('fetch_fail_' + res.status);
@@ -45,11 +48,12 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
       const text = strip(html).slice(0, 4000);
       cleaned.push({ ...it, body: text });
       success++;
-    } catch {
+      yield { type: 'fetch_item_ok', title: it.title || it.href };
+    } catch (e) {
       fail++;
+      yield { type: 'fetch_item_fail', title: it.title || it.href, message: e?.message || 'fetch_failed' };
     }
-  });
-  await Promise.allSettled(tasks);
+  }
   yield { type: 'fetch', success, fail };
 
   let report = '';
@@ -59,6 +63,7 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
       { role: 'system', content: '你是专业的舆情分析报告撰写专家。' },
       { role: 'user', content: `请按Markdown结构撰写《舆情分析报告》，主题：${query}。以下是参考材料链接（可用于提取要点与论证）：\n${refsText || '（未使用百度材料，本报告为直出）'}` }
     ];
+    yield { type: 'phase_change', to: 'llm' };
     report = await callLLM(apiUrl, messages, model, service);
   } catch (e) {
     report = '';

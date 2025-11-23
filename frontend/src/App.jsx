@@ -84,8 +84,29 @@ function App() {
             appendLog('阶段：' + phase + ' → 筛选：本轮通过 ' + ev.accepted_this_round)
             break
 
+          case 'filter_rejects':
+            appendLog('筛选：被驳回 ' + ev.count)
+            break
+
+          case 'filter_detail':
+            appendLog('筛选详情：通过 ' + ev.accepted + '，驳回 ' + ev.rejected)
+            break
+
           case 'fetch':
             appendLog('阶段：' + phase + ' → 抓取全文：成功 ' + ev.success + '，失败 ' + ev.fail)
+            break
+
+          case 'fetch_item_ok':
+            appendLog('抓取成功：' + ev.title)
+            break
+
+          case 'fetch_item_fail':
+            appendLog('抓取失败：' + ev.title + '（' + (ev.message || '未知原因') + '）')
+            break
+
+          case 'phase_change':
+            appendLog('阶段：' + phase + ' → ' + ev.to)
+            phase = ev.to || phase
             break
 
           case 'final':

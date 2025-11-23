@@ -22,10 +22,11 @@ function buildPayload(query, { model = 'deepseek-r1', topK = 10, sites = null } 
 
 function parseItemsAndSummary(data, topK) {
   const k = Math.max(1, Math.min(parseInt(topK || 10, 10), 20));
-  const msg = (data?.choices?.[0]?.message) || {};
-  const summary = String(msg?.content || '').trim();
-  let refs = Array.isArray(msg?.references) ? msg.references : [];
-  if (!refs?.length && Array.isArray(data?.references)) refs = data.references;
+  let refs = Array.isArray(data?.references) ? data.references : [];
+  if (!refs?.length && Array.isArray(data?.choices?.[0]?.message?.references)) {
+    refs = data.choices[0].message.references;
+  }
+  const summary = '';
 
   const blockedDomains = new Set(['baidu.com', 'www.baidu.com', 'image.baidu.com', 'v.baidu.com']);
   const blockedPatterns = ['image.baidu.com', '/image', '/img', '/video', '/vod', 'v.qq.com', 'tv.'];
