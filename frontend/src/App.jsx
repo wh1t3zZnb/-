@@ -7,7 +7,6 @@ import { runAnalysisFlow } from './lib/orchestrator'
 function App() {
   const [query, setQuery] = useState('')
   const [apiUrl, setApiUrl] = useState(localStorage.getItem('api_url') || '')
-  const [apiService, setApiService] = useState(localStorage.getItem('api_service') || 'volc')
   const [version] = useState('0.3.2-frontend-ai')
   const [logs, setLogs] = useState([])
   const [summary, setSummary] = useState('')
@@ -23,9 +22,6 @@ function App() {
     localStorage.setItem('api_url', apiUrl)
   }, [apiUrl])
 
-  useEffect(() => {
-    localStorage.setItem('api_service', apiService)
-  }, [apiService])
 
 
   useEffect(() => {
@@ -57,13 +53,12 @@ function App() {
     setIsBusy(true)
 
     appendLog('查询主题：' + query)
-    appendLog('模式：Workers 接口（服务：' + (apiService === 'baidu' ? '百度' : '豆包') + '）')
+    appendLog('模式：Workers 接口（百度检索 + 豆包生成）')
 
     let phase = 'init'
 
     try {
-      const modelDefault = apiService === 'baidu' ? 'ERNIE-4.0-mini' : 'doubao-seed-1-6-251015'
-      for await (const ev of runAnalysisFlow(query, { apiUrl, model: modelDefault, service: apiService })) {
+      for await (const ev of runAnalysisFlow(query, { apiUrl, model: 'doubao-seed-1-6-251015', service: 'volc' })) {
         switch (ev.type) {
           case 'planning':
             appendLog('规划：时间窗 ' + (ev.plan.timelimit || 'm') + '，RSS ' + (ev.plan.use_rss ? '启用' : '关闭'))
@@ -159,15 +154,8 @@ function App() {
               className="flex-1 input-primary"
             />
           </div>
-          <div className="flex gap-2 items-center mt-2">
-            <Key size={16} className="opacity-50" />
-            <select value={apiService} onChange={(e) => setApiService(e.target.value)} className="input-primary">
-              <option value="volc">豆包/Volcengine</option>
-              <option value="baidu">百度/千帆</option>
-            </select>
-          </div>
           <div className="muted mt-1 text-xs">
-            API URL & 服务选择存储在你的浏览器本地。
+            API URL 存储在你的浏览器本地。
           </div>
         </div>
 

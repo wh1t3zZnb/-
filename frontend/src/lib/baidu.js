@@ -19,7 +19,6 @@ function buildPayload(query, { model = 'deepseek-r1', topK = 10, sites = null } 
   return payload;
 }
 
-// removed: pure-frontend posting with Authorization; now routed via Workers
 
 function parseItemsAndSummary(data, topK) {
   const k = Math.max(1, Math.min(parseInt(topK || 10, 10), 20));
