@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
-import { Activity, Download, Search, Terminal, FileText, ExternalLink, Key } from 'lucide-react'
+import { Activity, Download, Search, Terminal, FileText, ExternalLink } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { runAnalysisFlow } from './lib/orchestrator'
 
 function App() {
   const [query, setQuery] = useState('')
-  const [apiUrl, setApiUrl] = useState(localStorage.getItem('api_url') || '')
-  const [baiduModel, setBaiduModel] = useState(localStorage.getItem('baidu_model') || 'ERNIE-4.0-mini')
+  const [apiUrl] = useState(localStorage.getItem('api_url') || '')
+  const [baiduModel] = useState(localStorage.getItem('baidu_model') || 'ERNIE-4.0-mini')
   const [version] = useState('0.3.2-frontend-ai')
   const [logs, setLogs] = useState([])
   const [summary, setSummary] = useState('')
@@ -22,10 +22,6 @@ function App() {
   useEffect(() => {
     localStorage.setItem('api_url', apiUrl)
   }, [apiUrl])
-
-  useEffect(() => {
-    localStorage.setItem('baidu_model', baiduModel)
-  }, [baiduModel])
 
 
 
@@ -59,7 +55,6 @@ function App() {
 
     appendLog('查询主题：' + query)
     appendLog('模式：Workers 接口（百度检索 + 豆包生成）')
-    appendLog('百度检索模型：' + (baiduModel || '默认'))
 
     let phase = 'init'
 
@@ -157,37 +152,6 @@ function App() {
       {error && <div className="error">{error}</div>}
 
       <div className="panel">
-        <div className="form-group">
-          <label className="block mb-2 font-medium">API Configuration</label>
-          <div className="flex gap-2 items-center">
-            <Key size={16} className="opacity-50" />
-            <input
-              type="text"
-              value={apiUrl}
-              onChange={(e) => setApiUrl(e.target.value)}
-              placeholder="Enter Cloudflare Worker API URL (https://.../api/chat)"
-              className="flex-1 input-primary"
-            />
-          </div>
-          <div className="muted mt-1 text-xs">
-            API URL 存储在你的浏览器本地。
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label className="block mb-2 font-medium">百度检索模型（可选）</label>
-          <div className="flex gap-2 items-center">
-            <Key size={16} className="opacity-50" />
-            <input
-              type="text"
-              value={baiduModel}
-              onChange={(e) => setBaiduModel(e.target.value)}
-              placeholder="例如：ERNIE-4.0-mini（留空走默认轮询）"
-              className="flex-1 input-primary"
-            />
-          </div>
-          <div className="muted mt-1 text-xs">如果你账号未开通默认模型，可以填你账号可用的百度模型名。</div>
-        </div>
 
         <div className="form-group mt-4">
           <label className="block mb-2 font-medium">请输入你的问题（示例：王家卫最近风评如何？）</label>
