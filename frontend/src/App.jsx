@@ -92,6 +92,12 @@ function App() {
             appendLog('筛选详情：通过 ' + ev.accepted + '，驳回 ' + ev.rejected)
             break
 
+          case 'filter_reject_samples':
+            if (Array.isArray(ev.samples) && ev.samples.length) {
+              ev.samples.forEach((s, i) => appendLog('被驳回示例 ' + (i + 1) + '：' + (s.title || '') + (s.source ? '（' + s.source + '）' : '')))
+            }
+            break
+
           case 'fetch':
             appendLog('阶段：' + phase + ' → 抓取全文：成功 ' + ev.success + '，失败 ' + ev.fail)
             break

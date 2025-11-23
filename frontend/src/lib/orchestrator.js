@@ -32,6 +32,10 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'doubao-seed-1-6
   yield { type: 'filter', accepted_this_round: accepted.length };
   if (rejected.length) yield { type: 'filter_rejects', count: rejected.length };
   yield { type: 'filter_detail', accepted: accepted.length, rejected: rejected.length };
+  if (rejected.length) {
+    const samples = rejected.slice(0, 3).map(it => ({ title: it.title || it.href || '', source: it.source || '' }));
+    yield { type: 'filter_reject_samples', samples };
+  }
 
   const fetchUrl = (() => {
     try { return apiUrl.replace('/api/chat', '/api/fetch'); } catch { return apiUrl; }
