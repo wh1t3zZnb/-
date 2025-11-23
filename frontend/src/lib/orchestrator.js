@@ -9,12 +9,16 @@ export async function* runAnalysisFlow(query, { apiUrl, model = 'qwen-plus' } = 
       { role: 'system', content: '只输出简要摘要。' },
       { role: 'user', content: `请给主题【${query}】写一段100字内的摘要。` }
     ], model);
-  } catch (e) {}
+  } catch {
+    brief = ''
+  }
   try {
     report = await callLLM(apiUrl, [
       { role: 'system', content: '你是专业的舆情分析报告撰写专家。' },
       { role: 'user', content: `请按Markdown结构撰写《舆情分析报告》，主题：${query}` }
     ], model);
-  } catch (e) {}
+  } catch {
+    report = ''
+  }
   yield { type: 'final', summary: brief, detailed_report: report, items: [] };
 }

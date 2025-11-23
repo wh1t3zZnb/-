@@ -7,7 +7,7 @@ import { runAnalysisFlow } from './lib/orchestrator'
 function App() {
   const [query, setQuery] = useState('')
   const [apiUrl, setApiUrl] = useState(localStorage.getItem('api_url') || '')
-  const [version, setVersion] = useState('0.3.2-frontend-ai')
+  const [version] = useState('0.3.2-frontend-ai')
   const [logs, setLogs] = useState([])
   const [summary, setSummary] = useState('')
   const [detailedReport, setDetailedReport] = useState('')
