@@ -26,7 +26,7 @@ export default {
           return new Response(JSON.stringify({ error: 'missing_baidu_api_key' }), { status: 401, headers: h })
         }
         const body = (() => { const o = { ...payload }; Reflect.deleteProperty(o, 'service'); return o })();
-        const endpoint = 'https://qianfan.baidubce.com/v2/ai_search/chat/completions';
+        const endpoint = 'https://qianfan.baidubce.com/v2/ai_search/web_search';
         let scheme = 'authorization_bearer';
         resp = await fetch(endpoint, {
           method: 'POST',
@@ -38,20 +38,20 @@ export default {
           body: JSON.stringify(body)
         });
         if (resp.status === 401) {
-          scheme = 'x_api_key_header';
+          scheme = 'x_appbuilder_authorization';
           resp = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'X-Api-Key': bkey
+              'X-Appbuilder-Authorization': `Bearer ${bkey}`
             },
             body: JSON.stringify(body)
           });
         }
         if (resp.status === 401) {
           scheme = 'access_token_query';
-          const urlWithToken = 'https://qianfan.baidubce.com/v2/ai_search/chat/completions?access_token=' + encodeURIComponent(bkey);
+          const urlWithToken = 'https://qianfan.baidubce.com/v2/ai_search/web_search?access_token=' + encodeURIComponent(bkey);
           resp = await fetch(urlWithToken, {
             method: 'POST',
             headers: {
